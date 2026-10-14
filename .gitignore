@@ -1,0 +1,13 @@
+# Python'un otomatik oluşturduğu dosyalar
+__pycache__/
+*.pyc
+
+# Gizli bilgiler (API anahtarı) GitHub'a ASLA yüklenmesin
+.env
+.streamlit/secrets.toml
+
+# Sanal ortam klasörleri
+.venv/
+venv/
+desktop.ini
+Thumbs.db
