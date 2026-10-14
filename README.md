@@ -1,148 +1,151 @@
-# 📦 Akıllı Stok Yönetimi Ajanı
+# 📦 Smart Inventory Management Agent
 
-Endüstri mühendisliğindeki **stok yönetimi** problemlerini çözen, Python ile yazılmış bir **yapay zeka ajanı**.
+An **AI agent** written in Python that solves **inventory management** problems from industrial engineering.
 
-Kullanıcı problemini Türkçe cümlelerle ve rakamlarıyla yazar. Ajan (Google Gemini) hangi hesaplamanın gerektiğine kendisi karar verir, rakamları cümleden çıkarır ve Python'da yazılmış hesaplayıcıları çağırır. Sonucu da Türkçe yorumlar. Tarayıcıda açılan bir arayüzü vardır.
+The user describes a problem and its numbers in plain sentences (in Turkish). The agent (Google Gemini) decides which calculation is needed, extracts the numbers from the text, and calls calculator functions written in Python. It then explains the result in Turkish. The project includes a web interface that runs in the browser.
 
-> **Önemli tasarım kararı:** Matematiksel hesaplar yapay zekaya bırakılmaz. Hesapları Python fonksiyonları yapar, yapay zeka yalnızca "hangi hesap" ve "hangi girdiler" kararını verir ve sonucu yorumlar. Böylece rakamlar tutarlı ve kontrol edilebilir olur.
+> **Language note:** the app's interface and the agent's replies are in Turkish. This README is in English, and the screenshots below show the Turkish interface.
 
-## Ne yapar?
+> **Key design decision:** the mathematical calculations are not left to the AI. Python functions do the math; the AI only decides *which calculation* to run and *which inputs* to use, and then interprets the result. This keeps the numbers consistent and verifiable.
 
-| Hesap | Açıklama | Gerekli bilgiler |
+## What does it do?
+
+| Calculation | Description | Required inputs |
 |---|---|---|
-| **Ekonomik sipariş miktarı (EOQ)** | Yıllık sipariş + elde tutma maliyetini en aza indiren sipariş miktarı | Yıllık talep, sipariş başına maliyet, birim elde tutma maliyeti |
-| **Emniyet stoku ve yeniden sipariş noktası** | Stok kaç adede düşünce yeni sipariş verilmeli | Günlük ortalama talep, günlük talebin sapması, tedarik süresi, hizmet seviyesi |
-| **Çok ürünlü ABC analizi** | Ürünleri yıllık kullanım değerine göre A/B/C sınıflarına ayırıp öncelik belirler. Bilgisi yeterli ürünler için EOQ ve yeniden sipariş noktasını da hesaplar | Her ürün için yıllık talep ve birim fiyat (diğer bilgiler isteğe bağlı) |
+| **Economic order quantity (EOQ)** | The order quantity that minimizes the sum of annual ordering and holding costs | Annual demand, ordering cost per order, holding cost per unit per year |
+| **Safety stock and reorder point** | The stock level at which a new order should be placed | Average daily demand, standard deviation of daily demand, lead time, service level |
+| **Multi-product ABC analysis** | Classifies products as A/B/C by annual usage value to set priorities. For products with enough information, it also calculates EOQ and the reorder point | Annual demand and unit price for each product (other inputs are optional) |
 
-Programda hazır ya da örnek veri yoktur. Ürünleri ve rakamları kullanıcı sohbette kendisi yazar. Bilgi eksikse ajan tahmin yürütmez, kullanıcıya sorar.
+The program contains no built-in or sample data. The user types the products and numbers in the chat. If information is missing, the agent does not guess; it asks the user.
 
-## Ekran görüntüleri
+## Screenshots
 
-**Ajan ile sohbet (açılış ekranı):**
+**Chat with the agent (opening screen):**
 
-![Ajan ile sohbet](ekran_goruntuleri/sohbet.png)
+![Chat with the agent](ekran_goruntuleri/sohbet.png)
 
-**Kullanıcı problemi rakamlarıyla yazar:**
+**The user describes the problem with its numbers:**
 
-![Örnek soru](ekran_goruntuleri/ornek_soru.png)
+![Example question](ekran_goruntuleri/ornek_soru.png)
 
-**Ajanın cevabı:**
+**The agent's answer:**
 
-![Ajanın cevabı 1](ekran_goruntuleri/agent_cevap_1.png)
+![Agent answer 1](ekran_goruntuleri/agent_cevap_1.png)
 
-![Ajanın cevabı 2](ekran_goruntuleri/agent_cevap_2.png)
+![Agent answer 2](ekran_goruntuleri/agent_cevap_2.png)
 
-**Hesap sonuçları sekmesi (kutular, tablo ve grafik):**
+**Calculation results tab (metric boxes, table and chart):**
 
-![Hesap sonuçları 1](ekran_goruntuleri/sonuclar_1.png)
+![Calculation results 1](ekran_goruntuleri/sonuclar_1.png)
 
-![Hesap sonuçları 2](ekran_goruntuleri/sonuclar_2.png)
+![Calculation results 2](ekran_goruntuleri/sonuclar_2.png)
 
-## Ajan nasıl çalışır?
+## How does the agent work?
 
-1. Kullanıcı problemi yazar: *"Yıllık talebim 12000 adet, sipariş maliyeti 50 TL..."*
-2. Ajan, mesajı ve elindeki **araçların** (hesaplayıcı fonksiyonların) açıklamalarını Gemini'ye gönderir.
-3. Gemini uygun aracı seçer ve girdileri cümleden çıkarır (*function calling*).
-4. Python o fonksiyonu çalıştırır. Hesabı yapay zeka değil, kod yapar.
-5. Sonuç Gemini'ye geri verilir, Gemini Türkçe yorumu yazar.
-6. Hesap sonuçları arayüzdeki "Hesap sonuçları" sekmesinde tablo, kutu ve grafiklerle gösterilir.
+1. The user writes the problem, e.g. *"My annual demand is 12000 units, ordering cost is 50 TL..."*
+2. The agent sends the message, together with descriptions of its **tools** (the calculator functions), to Gemini.
+3. Gemini picks the right tool and extracts the inputs from the sentence (*function calling*).
+4. Python runs that function. The code does the calculation, not the AI.
+5. The result is sent back to Gemini, which writes the interpretation in Turkish.
+6. The results are shown in the "Hesap sonuçları" (Calculation results) tab of the interface as boxes, tables and charts.
 
-## Kurulum
+## Installation
 
-**Gereksinimler:** Python 3.10 veya üzeri ve ücretsiz bir Gemini API anahtarı.
+**Requirements:** Python 3.10 or later and a free Gemini API key.
 
-1. Projeyi bilgisayarına indir (GitHub'da yeşil **Code** düğmesi, sonra **Download ZIP**) ve klasöre çık.
-2. Klasörde bir terminal aç ve gerekli paketleri kur:
+1. Download the project (green **Code** button on GitHub, then **Download ZIP**) and extract it.
+2. Open a terminal in the folder and install the required packages:
    ```
    python -m pip install -r requirements.txt
    ```
-3. [Google AI Studio](https://aistudio.google.com) sitesinde Google hesabınla girip bir **API anahtarı** oluştur.
-4. Anahtarı terminalde tanımla (anahtar koda yazılmaz). **Windows PowerShell:**
+3. Sign in to [Google AI Studio](https://aistudio.google.com) with your Google account and create an **API key**.
+4. Define the key in the terminal (the key is never written into the code). **Windows PowerShell:**
    ```
-   $env:GEMINI_API_KEY="BURAYA_ANAHTARIN"
+   $env:GEMINI_API_KEY="YOUR_KEY_HERE"
    ```
    **Mac / Linux:**
    ```
-   export GEMINI_API_KEY="BURAYA_ANAHTARIN"
+   export GEMINI_API_KEY="YOUR_KEY_HERE"
    ```
-   Bu tanım yalnızca o terminal penceresi için geçerlidir. Anahtar tanımlamadan da uygulamayı açabilirsin, sayfanın yan panelinden anahtarı girmen yeterlidir.
+   This setting is valid only for that terminal window. You can also open the app without defining the key and enter it in the sidebar of the page instead.
 
-## Çalıştırma
+## Running
 
-**Tarayıcı arayüzü (önerilen):**
+**Browser interface (recommended):**
 ```
 python -m streamlit run app.py
 ```
-Tarayıcıda `http://localhost:8501` adresi açılır.
+The page opens at `http://localhost:8501`.
 
-**Terminalde sohbet:**
+**Chat in the terminal:**
 ```
 python agent.py
 ```
 
-**Testler** (internet ve anahtar gerekmez):
+**Tests** (no internet or API key needed):
 ```
 python test_hesaplar.py
 ```
 
-## Örnek problem
+## Example problem
 
-Ajana şunu yazın:
+Write the following to the agent (the app works in Turkish):
 
 > Bir otomotiv yedek parça deposunun stok yöneticisiyim, 4 ürünüm var. Fren balatası: yıllık talep 6000 adet, birim fiyat 120 TL, sipariş maliyeti 150 TL, elde tutma oranı %20, günlük talep sapması 6, tedarik süresi 5 gün, hizmet seviyesi %95. Yağ filtresi: yıllık talep 9000 adet, birim fiyat 35 TL, sipariş maliyeti 100 TL, elde tutma oranı %22, günlük talep sapması 8, tedarik süresi 4 gün, hizmet seviyesi %95. Akü: yıllık talep 1200 adet, birim fiyat 1400 TL, sipariş maliyeti 200 TL, elde tutma oranı %18, günlük talep sapması 2, tedarik süresi 10 gün, hizmet seviyesi %98. Silecek lastiği: yıllık talep 3000 adet, birim fiyat 25 TL, sipariş maliyeti 80 TL, elde tutma oranı %25, günlük talep sapması 4, tedarik süresi 3 gün, hizmet seviyesi %90. Hangi ürünlere öncelik vermeliyim, her ürün için kaç adet sipariş vermeliyim ve stok kaça düşünce sipariş vermeliyim?
 
-Beklenen sonuç (veriler varsayımsaldır):
+In English, the same problem reads: *I am the inventory manager of an automotive spare-parts warehouse with 4 products. Brake pads: annual demand 6000 units, unit price 120 TL, ordering cost 150 TL, holding cost rate 20%, daily demand standard deviation 6, lead time 5 days, service level 95%. Oil filter: annual demand 9000 units, unit price 35 TL, ordering cost 100 TL, holding cost rate 22%, daily demand standard deviation 8, lead time 4 days, service level 95%. Battery: annual demand 1200 units, unit price 1400 TL, ordering cost 200 TL, holding cost rate 18%, daily demand standard deviation 2, lead time 10 days, service level 98%. Wiper blade: annual demand 3000 units, unit price 25 TL, ordering cost 80 TL, holding cost rate 25%, daily demand standard deviation 4, lead time 3 days, service level 90%. Which products should I prioritize, how many units should I order for each product, and at what stock level should I place an order?*
 
-| Ürün | ABC | Değer payı | EOQ (adet) | Emniyet stoku | Yeniden sipariş noktası | Yıllık stok maliyeti |
+Expected result (the data is hypothetical):
+
+| Product | ABC | Value share | EOQ (units) | Safety stock | Reorder point | Annual inventory cost |
 |---|---|---|---|---|---|---|
-| Akü | A | %60,2 | 44 | 13 | 46 | 10.998 TL |
-| Fren balatası | A | %25,8 | 274 | 22 | 104 | 6.573 TL |
-| Yağ filtresi | B | %11,3 | 483 | 26 | 125 | 3.723 TL |
-| Silecek lastiği | C | %2,7 | 277 | 9 | 34 | 1.732 TL |
+| Battery (Akü) | A | 60.2% | 44 | 13 | 46 | 10,998 TL |
+| Brake pads (Fren balatası) | A | 25.8% | 274 | 22 | 104 | 6,573 TL |
+| Oil filter (Yağ filtresi) | B | 11.3% | 483 | 26 | 125 | 3,723 TL |
+| Wiper blade (Silecek lastiği) | C | 2.7% | 277 | 9 | 34 | 1,732 TL |
 
-Toplam yıllık kullanım değeri 2.790.000 TL, toplam yıllık stok maliyeti 23.026 TL'dir.
+Total annual usage value is 2,790,000 TL and total annual inventory cost is 23,026 TL.
 
-## Kullanılan formüller
+## Formulas used
 
 - **EOQ** = √(2 · D · S / H)  
-  D: yıllık talep, S: sipariş başına maliyet, H: birim başına yıllık elde tutma maliyeti (birim fiyat × elde tutma oranı)
-- **Emniyet stoku** = z · σ · √L  
-  z: hizmet seviyesine karşılık gelen standart normal dağılım değeri, σ: günlük talebin standart sapması, L: tedarik süresi (gün)
-- **Yeniden sipariş noktası** = d · L + emniyet stoku  
-  d: günlük ortalama talep (yıllık talep / 365)
-- **ABC analizi:** Ürünler yıllık kullanım değerine (talep × birim fiyat) göre sıralanır. Kümülatif payın ilk %80'ini oluşturanlar A, sonraki %15'i B, kalanı C sınıfıdır.
+  D: annual demand, S: ordering cost per order, H: annual holding cost per unit (unit price × holding cost rate)
+- **Safety stock** = z · σ · √L  
+  z: standard normal value for the service level, σ: standard deviation of daily demand, L: lead time (days)
+- **Reorder point** = d · L + safety stock  
+  d: average daily demand (annual demand / 365)
+- **ABC analysis:** products are sorted by annual usage value (demand × unit price). Those making up the first 80% of the cumulative share are class A, the next 15% are class B, and the rest are class C.
 
-## Varsayımlar ve sınırlar
+## Assumptions and limitations
 
-- Talep yıl boyunca sabit kabul edilir, günlük talep normal dağılıma uyar ve tedarik süresi sabittir.
-- EOQ hesabında miktar indirimi ve stoksuzluk (eksik stok) maliyeti yoktur.
-- Yıl 365 gün alınır.
-- Ajan bir dil modeline dayandığı için bir cümleyi yanlış anlayabilir. Cevabın altındaki **"Ajan hangi hesabı yaptı?"** kutusu, ajanın hangi girdilerle hesap yaptığını gösterir ve kontrol için kullanılabilir.
-- Ücretsiz API katmanında yanıt süreleri uzayabilir.
-- Kullanılan model `agent.py` içindeki `MODEL` satırında yazar. Google modeli kaldırırsa oradan değiştirilebilir.
+- Demand is assumed constant over the year, daily demand follows a normal distribution, and lead time is constant.
+- The EOQ calculation has no quantity discounts and no shortage (stockout) cost.
+- A year is taken as 365 days.
+- Because the agent is based on a language model, it may misread a sentence. The **"Ajan hangi hesabı yaptı?"** (Which calculation did the agent run?) box under each answer shows the inputs the agent used, so you can check them.
+- Response times may be long on the free API tier.
+- The model used is set on the `MODEL` line in `agent.py`. If Google retires the model, change it there.
 
-## Proje yapısı
+## Project structure
 
 ```
-├── app.py              Tarayıcı arayüzü (Streamlit)
-├── agent.py            Ajan: Gemini ile konuşur, araçları seçip çağırır
-├── envanter.py         Hesaplayıcılar: EOQ, emniyet stoku, yeniden sipariş noktası
-├── portfoy.py          Çok ürünlü analiz ve ABC sınıflandırması
-├── test_hesaplar.py    Hesaplayıcıların otomatik testleri
-├── test_gemini.py      Gemini bağlantı testi (anahtar gerekir)
-├── requirements.txt    Gerekli Python paketleri
-└── ekran_goruntuleri/  README'de görünen ekran görüntüleri
+├── app.py              Browser interface (Streamlit)
+├── agent.py            The agent: talks to Gemini, selects and calls the tools
+├── envanter.py         Calculators: EOQ, safety stock, reorder point
+├── portfoy.py          Multi-product analysis and ABC classification
+├── test_hesaplar.py    Automated tests of the calculators
+├── test_gemini.py      Gemini connection test (needs an API key)
+├── requirements.txt    Required Python packages
+└── ekran_goruntuleri/  Screenshots shown in this README
 ```
 
-## Güvenlik notu
+## Security note
 
-API anahtarı koda yazılmaz ve GitHub'a yüklenmez. Anahtar yalnızca bilgisayarındaki `GEMINI_API_KEY` ortam değişkeninden okunur (ya da arayüzde yan panele girilir). `.gitignore` dosyası gizli dosyaların yanlışlıkla yüklenmesini engeller.
+The API key is never written into the code or uploaded to GitHub. It is read only from the `GEMINI_API_KEY` environment variable on your computer (or entered in the sidebar of the interface). The `.gitignore` file prevents secret files from being uploaded by accident.
 
-## Teknolojiler
+## Technologies
 
 Python · Google Gemini (Interactions API, function calling) · Streamlit · pandas · Altair
 
 ---
 
-Hazırlayan: **[Öykü Çolak]** · Ders: **[Bütünleşik Sistem Tasarımı]**
-
+Prepared by: **Öykü Çolak** · Course: **Integrated Systems Design**
